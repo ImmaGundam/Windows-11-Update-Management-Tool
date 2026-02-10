@@ -14,8 +14,10 @@ A menu-driven PowerShell utility to disable Windows OS updates, clear update cac
 - Keep Microsoft Defender signature updates enabled
 - Restore everything back to default & safe to re-run
 
-Instructions:
+![disable](https://github.com/user-attachments/assets/0616c32d-9cd5-42a5-969e-5ee0c677906c)
+
+<b><h3>Instructions:</h3></b>
 Using this script currently Windows will still self-heal, but it will take time. Many hours, often a day or 2. If Updates persist, run the script as admin and run 1 (run all). Reboot and it's cleared. 
 
-WIP/To do: Watchdog app for monitoring and auto-running script
+<i>To do:<br>Watchdog app for monitoring and auto-running script</i>
 
