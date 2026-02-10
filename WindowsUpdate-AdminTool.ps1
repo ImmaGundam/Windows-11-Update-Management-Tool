@@ -1,22 +1,3 @@
-<# 
-================================================================================
- Windows 10 & 11 Update Admin Tool
- Disables or restores Windows Update while keeping Defender updates.
-
- Author: https://github.com/ImmaGundam
-
- WHAT THIS DOES:
- - Disable all Windows OS update mechanisms
- - Clear downloaded update caches and temp files
- - Keep Microsoft Defender signature updates working
- - Restore to default
-
- REQUIREMENTS:
- - Windows 10 / 11
- - Run as Administrator
-================================================================================
-#>
-
 # -----------------------------
 # Admin Check
 # -----------------------------
@@ -203,7 +184,7 @@ function Restore-WindowsUpdate {
 }
 
 # -----------------------------
-# Status
+# Service Status
 # -----------------------------
 
 function Show-ServiceStatus {
@@ -220,50 +201,51 @@ function Show-ServiceStatus {
 do {
     Clear-Host
     Write-Host "===================================================="
-    Write-Host "  Windows 10 & 11 Update Admin Tool"
+    Write-Host "  Windows 11 Update Management Tool"
     Write-Host "----------------------------------------------------"
-    Write-Host "  https://github.com/ImmaGundam"
+    Write-Host "  1 = Runs all, 2-7 are manual. Run 9 to check."
+    Write-Host "----------------------------------------------------"
+    Write-Host "  https://github.com/ImmaGundam - v0.2 01.2026"
     Write-Host "===================================================="
+    Write-Host "Disable Updates:"
+    Write-Host "1. Run All Steps (Recommended)"
+    Write-Host "2. Disable Windows Update services"
+    Write-Host "3. Disable Windows Update registry policy"
+    Write-Host "4. Disable Update scheduled tasks"
+    Write-Host "5. Set Ethernet as metered"
     Write-Host ""
-    Write-Host "1. Disable Windows Update services"
-    Write-Host "2. Disable Windows Update registry policy"
-    Write-Host "3. Disable Update scheduled tasks"
-    Write-Host "4. Set Ethernet as metered (Optional)"
+    Write-Host "Cleanup:"
+    Write-Host "6. Clear update cache & temp files"
+    Write-Host "7. Enable Defender updates only"
     Write-Host ""
-    Write-Host "5. Clear update cache & temp files"
-    Write-Host "6. Enable Defender updates only"
-    Write-Host ""
-    Write-Host "7. Run all steps (recommended)"
-    Write-Host "8. Restore all settings"
+    Write-Host "Other:"
+    Write-Host "8. RESTORE / UNDO all changes"
     Write-Host "9. Show service status"
-    Write-Host "0. Exit"
-    Write-Host ""
+    Write-Host "10. Exit"
 
     $choice = Read-Host "Select an option"
 
     switch ($choice) {
-        "1" { Disable-WindowsUpdateServices; Pause }
-        "2" { Disable-WindowsUpdatePolicy; Pause }
-        "3" { Disable-UpdateScheduledTasks; Pause }
-        "4" { Set-MeteredEthernet; Pause }
-        "5" { Clear-WindowsUpdateCache; Pause }
-        "6" { Enable-DefenderOnlyUpdates; Pause }
-        "7" {
+        "1" {
             Disable-WindowsUpdateServices
             Disable-WindowsUpdatePolicy
             Disable-UpdateScheduledTasks
             Set-MeteredEthernet
             Clear-WindowsUpdateCache
             Enable-DefenderOnlyUpdates
-            Show-ServiceStatus
-            Pause
-        }
+            Show-ServiceStatus; Pause }
+        "2" { Disable-WindowsUpdateServices; Pause }
+        "3" { Disable-WindowsUpdatePolicy; Pause }
+        "4" { Disable-UpdateScheduledTasks; Pause }
+        "5" { Set-MeteredEthernet; Pause }
+        "6" { Clear-WindowsUpdateCache; Pause }
+        "7" { Enable-DefenderOnlyUpdates; Pause }
         "8" { Restore-WindowsUpdate; Show-ServiceStatus; Pause }
         "9" { Show-ServiceStatus; Pause }
-        "0" { break }
+        "10" { break }
         default { Write-Host "Invalid selection." -ForegroundColor Red; Pause }
     }
 }
 while ($true)
 
-Write-Host "Exiting Windows 10 & 11 Update Tool." -ForegroundColor Cyan
+Write-Host "Exiting." -ForegroundColor Cyan
