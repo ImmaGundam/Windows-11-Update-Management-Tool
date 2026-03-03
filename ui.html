@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+
+<style>
+
+body{
+font-family:Segoe UI;
+margin:4px;
+background:#f2f2f2;
+font-size:11px;
+}
+
+.row{
+display:flex;
+justify-content:space-between;
+}
+
+.light{
+
+width:14px;
+height:14px;
+border-radius:50%;
+background:gray;
+margin:auto;
+}
+
+button{
+font-size:10px;
+margin-top:4px;
+}
+
+.bottom{
+
+margin-top:2px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+
+}
+
+#aboutPage{
+
+display:none;
+text-align:center;
+margin-top:5px;
+
+}
+
+.github{
+
+width:18px;
+cursor:pointer;
+
+}
+
+</style>
+
+<body>
+
+<div id="main">
+
+<div class="row">
+
+<div>
+Services<br>
+<div id="svc" class="light"></div>
+</div>
+
+<div>
+Defender<br>
+<div id="def" class="light"></div>
+</div>
+
+</div>
+
+<button onclick="runAll()">Run All</button>
+<button onclick="fixDef()">Fix Defender</button>
+
+<div class="bottom">
+
+<label>
+<input type="checkbox" id="ignore">
+Ignore Defender
+</label>
+
+<button onclick="about()">?</button>
+
+</div>
+
+</div>
+
+
+<div id="aboutPage">
+
+<b>Windows Update Watchdog</b>
+
+
+
+<p style="font-size: 10px;">
+
+© 2026 <a href="https://jamesdeitz.social" target="_blank">James Deitz</a> - <a href="https://github.com/immagundam" target="_blank">ImmaGundam</a>
+</p>
+
+<button onclick="back()">Back</button>
+
+</div>
+
+
+<script>
+
+
+function setLights(status){
+
+svc.style.background =
+status.services ? "green":"red"
+
+
+if(status.defender === null){
+
+def.style.background="gray"
+
+}else{
+
+def.style.background =
+status.defender ? "green":"red"
+
+}
+
+}
+
+
+async function refresh(){
+
+let status =
+await pywebview.api.get_status()
+
+setLights(status)
+
+}
+
+
+async function runAll(){
+
+let status =
+await pywebview.api.run_all()
+
+setLights(status)
+
+}
+
+
+async function fixDef(){
+
+let status =
+await pywebview.api.fix_defender()
+
+setLights(status)
+
+}
+
+
+ignore.onchange = async function(){
+
+let status =
+await pywebview.api.toggle_ignore(
+ignore.checked
+)
+
+setLights(status)
+
+}
+
+
+function about(){
+
+main.style.display="none"
+aboutPage.style.display="block"
+
+}
+
+
+function back(){
+
+aboutPage.style.display="none"
+main.style.display="block"
+
+}
+
+
+refresh()
+
+setInterval(refresh,5000)
+
+
+</script>
+
+</body>
+</html>
