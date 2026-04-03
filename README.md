@@ -1,4 +1,5 @@
-# Windows 11 Update Management Tool
+# Windows Update Watchdog
+A windows 10 & 11 update management tool. <br>
 The newest update introduces the Watchdog tool. <br><br>
 <img width="414" height="138" alt="image" src="https://github.com/user-attachments/assets/18abaefa-14c7-4a96-82d6-adb292581bd8" />
 
