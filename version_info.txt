@@ -1,0 +1,38 @@
+# UTF-8
+VSVersionInfo(
+  ffi=FixedFileInfo(
+    filevers=(1, 1, 0, 0),
+    prodvers=(1, 1, 0, 0),
+    mask=0x3f,
+    flags=0x0,
+    OS=0x40004,
+    fileType=0x1,
+    subtype=0x0,
+    date=(0, 0)
+  ),
+  kids=[
+    StringFileInfo([
+      StringTable(
+        '040904B0',
+        [
+          StringStruct('CompanyName', 'WebGeeks IT'),
+          StringStruct('FileDescription', 'Windows Update Watchdog'),
+          StringStruct('FileVersion', '1.1.0.0'),
+          StringStruct('InternalName', 'WindowsUpdateWatchdog'),
+          StringStruct('OriginalFilename', 'WindowsUpdateWatchdog.exe'),
+          StringStruct('ProductName', 'Windows Update Watchdog'),
+          StringStruct('ProductVersion', '1.1.0.0'),
+          StringStruct('LegalCopyright', '© 2026 WebGeeks IT'),
+          StringStruct('Comments', 'Developer: James Deitz | Homepage: https://www.webgeeks.org | Repository: https://github.com/ImmaGundam/Windows-update-watchdog'),
+          StringStruct('LegalTrademarks', 'WebGeeks IT'),
+          StringStruct('PrivateBuild', 'Developer: James Deitz'),
+          StringStruct('SpecialBuild', 'Homepage: https://www.webgeeks.org | Repository: https://github.com/ImmaGundam/Windows-update-watchdog'),
+          StringStruct('Developer', 'James Deitz'),
+          StringStruct('Homepage', 'https://www.webgeeks.org'),
+          StringStruct('Repository', 'https://github.com/ImmaGundam/Windows-update-watchdog')
+        ]
+      )
+    ]),
+    VarFileInfo([VarStruct('Translation', [1033, 1200])])
+  ]
+)

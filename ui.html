@@ -1,198 +1,253 @@
 <!DOCTYPE html>
 <html>
-
+<head>
+<meta charset="utf-8">
 <style>
-
+html,
 body{
-font-family:Segoe UI;
-margin:4px;
-background:#f2f2f2;
-font-size:11px;
+  width:100%;
+  height:100%;
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  overflow:hidden;
 }
-
+*,*::before,*::after{ box-sizing:inherit; }
+body{
+  font-family:Segoe UI,Arial,sans-serif;
+  background:#f2f2f2;
+  font-size:11px;
+}
+#main{
+  width:100vw;
+  height:100vh;
+  position:relative;
+  padding:6px 6px 4px 6px;
+}
 .row{
-display:flex;
-justify-content:space-between;
+  display:flex;
+  justify-content:space-around;
+  text-align:center;
+  line-height:1.15;
 }
-
 .light{
-
-width:14px;
-height:14px;
-border-radius:50%;
-background:gray;
-margin:auto;
+  width:14px;
+  height:14px;
+  border-radius:50%;
+  background:gray;
+  margin:3px auto 3px auto;
 }
-
+.buttons{
+  display:flex;
+  gap:3px;
+  justify-content:center;
+  margin-top:1px;
+}
 button{
-font-size:10px;
-margin-top:4px;
+  font-size:10px;
+  padding:2px 5px;
+  line-height:14px;
 }
-
-.bottom{
-
-margin-top:2px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-
+.iconBtn{
+  width:22px;
+  height:20px;
+  padding:0;
+  line-height:16px;
 }
-
+.settingsBtn{
+  position:absolute;
+  left:7px;
+  bottom:5px;
+}
+.aboutBtn{
+  position:absolute;
+  right:7px;
+  bottom:5px;
+}
+#msg{
+  font-size:10px;
+  height:12px;
+  margin-top:2px;
+  text-align:center;
+  color:#555;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
 #aboutPage{
-
-display:none;
-text-align:center;
-margin-top:5px;
-
+  display:none;
+  width:100vw;
+  height:100vh;
+  padding:8px;
+  text-align:center;
+  background:#f2f2f2;
+  box-sizing:border-box;
+}
+#aboutPage p{
+  font-size:10px;
+  margin:5px 0;
 }
 
-.github{
-
-width:18px;
-cursor:pointer;
-
+.versionText{
+  font-size:10px;
+  margin:4px 0 6px 0;
 }
-
+.copyrightText{
+  line-height:1.35;
+  white-space:nowrap;
+}
+.aboutLinks{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:6px;
+}
+.githubIcon{
+  display:inline-flex;
+  width:14px;
+  height:14px;
+  align-items:center;
+  justify-content:center;
+  color:#111;
+}
+.githubIcon svg{
+  width:14px;
+  height:14px;
+  fill:currentColor;
+  display:block;
+}
 </style>
-
+</head>
 <body>
 
 <div id="main">
 
 <div class="row">
-
-<div>
-Services<br>
+<div title="Windows Update controls">
+Updates<br>
 <div id="svc" class="light"></div>
 </div>
 
-<div>
+<div title="Microsoft Defender protection">
 Defender<br>
 <div id="def" class="light"></div>
 </div>
-
 </div>
 
-<button onclick="runAll()">Run All</button>
-<button onclick="fixDef()">Fix Defender</button>
-
-<div class="bottom">
-
-<label>
-<input type="checkbox" id="ignore">
-Ignore Defender
-</label>
-
-<button onclick="about()">?</button>
-
+<div class="buttons">
+<button onclick="startWatchdog()" title="Start update patrol loop and preserve Defender">Start</button>
+<button onclick="stopWatchdog()" title="Stop the watchdog patrol loop without restoring update controls">Stop</button>
+<button onclick="restoreAll()" title="Undo update blocking changes">Restore</button>
 </div>
 
-</div>
+<div id="msg">Ready</div>
 
+<button class="iconBtn settingsBtn" onclick="openStatus()" title="Open diagnostics window">&#9881;</button>
+<button class="iconBtn aboutBtn" onclick="about()" title="About">?</button>
+
+</div>
 
 <div id="aboutPage">
-
 <b>Windows Update Watchdog</b>
-
-
-
-<p style="font-size: 10px;">
-
-© 2026 <a href="https://jamesdeitz.social" target="_blank">James Deitz</a> - <a href="https://github.com/immagundam" target="_blank">ImmaGundam</a>
+<p class="versionText">Version 1.1.0</p>
+<p class="copyrightText">© 2026 <a href="https://www.webgeeks.org" target="_blank" rel="noopener">WebGeeks IT</a></p>
+<p class="aboutLinks">
+<a class="githubIcon" href="https://github.com/ImmaGundam/Windows-update-watchdog" target="_blank" rel="noopener" title="GitHub repository" aria-label="GitHub repository">
+<svg viewBox="0 0 16 16" aria-hidden="true">
+<path d="M8 0.35A7.65 7.65 0 0 0 5.58 15.26c.38.07.52-.16.52-.36v-1.35c-2.1.46-2.55-.9-2.55-.9-.35-.88-.84-1.11-.84-1.11-.69-.47.05-.46.05-.46.76.05 1.16.78 1.16.78.68 1.15 1.77.82 2.2.63.07-.49.27-.82.49-1.01-1.68-.19-3.44-.84-3.44-3.73 0-.82.3-1.5.78-2.03-.08-.19-.34-.96.07-2 0 0 .64-.2 2.1.78A7.3 7.3 0 0 1 8 4.24c.65 0 1.3.09 1.9.26 1.45-.98 2.09-.78 2.09-.78.41 1.04.15 1.81.07 2 .49.53.78 1.21.78 2.03 0 2.9-1.77 3.54-3.45 3.73.27.23.52.7.52 1.42v2c0 .2.14.43.52.36A7.65 7.65 0 0 0 8 .35Z"/>
+</svg>
+</a>
 </p>
-
 <button onclick="back()">Back</button>
-
 </div>
 
-
 <script>
+const svc = document.getElementById("svc")
+const def = document.getElementById("def")
+const main = document.getElementById("main")
+const aboutPage = document.getElementById("aboutPage")
+const msg = document.getElementById("msg")
 
+function light(el, value){
+  if(value === null){
+    el.style.background = "gray"
+  }else{
+    el.style.background = value ? "green" : "red"
+  }
+}
+
+function watchText(status){
+  const guard = status && status.details && status.details.updates
+    ? status.details.updates.guard_enabled
+    : false
+  return guard ? "Watching: enabled" : "Watching: disabled"
+}
 
 function setLights(status){
-
-svc.style.background =
-status.services ? "green":"red"
-
-
-if(status.defender === null){
-
-def.style.background="gray"
-
-}else{
-
-def.style.background =
-status.defender ? "green":"red"
-
+  light(svc, status.services)
+  light(def, status.defender)
+  msg.textContent = watchText(status)
 }
 
+async function safeCall(label, fn){
+  try{
+    msg.textContent = label
+    const status = await fn()
+    setLights(status)
+  }catch(err){
+    console.error(err)
+    svc.style.background = "gray"
+    def.style.background = "gray"
+    msg.textContent = "Error"
+  }
 }
-
 
 async function refresh(){
-
-let status =
-await pywebview.api.get_status()
-
-setLights(status)
-
+  try{
+    const status = await pywebview.api.get_status()
+    setLights(status)
+  }catch(err){
+    console.error(err)
+    svc.style.background = "gray"
+    def.style.background = "gray"
+  }
 }
 
-
-async function runAll(){
-
-let status =
-await pywebview.api.run_all()
-
-setLights(status)
-
+async function startWatchdog(){
+  await safeCall("Starting...", () => pywebview.api.run_all())
 }
 
-
-async function fixDef(){
-
-let status =
-await pywebview.api.fix_defender()
-
-setLights(status)
-
+async function stopWatchdog(){
+  await safeCall("Stopping...", () => pywebview.api.stop_watchdog())
 }
 
-
-ignore.onchange = async function(){
-
-let status =
-await pywebview.api.toggle_ignore(
-ignore.checked
-)
-
-setLights(status)
-
+async function restoreAll(){
+  await safeCall("Restoring...", () => pywebview.api.restore_all())
 }
 
+async function openStatus(){
+  try{
+    msg.textContent = "Opening status..."
+    const result = await pywebview.api.open_status_window()
+    msg.textContent = result && result.ok ? "Ready" : "Status error"
+  }catch(err){
+    console.error(err)
+    msg.textContent = "Status error"
+  }
+}
 
 function about(){
-
-main.style.display="none"
-aboutPage.style.display="block"
-
+  main.style.display = "none"
+  aboutPage.style.display = "block"
 }
-
 
 function back(){
-
-aboutPage.style.display="none"
-main.style.display="block"
-
+  aboutPage.style.display = "none"
+  main.style.display = "block"
 }
 
-
 refresh()
-
 setInterval(refresh,5000)
-
-
 </script>
-
 </body>
 </html>

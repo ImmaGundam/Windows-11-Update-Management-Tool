@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+html,
+body{
+  width:100%;
+  height:100%;
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  overflow:hidden;
+}
+*,*::before,*::after{ box-sizing:inherit; }
+body{
+  font-family:Segoe UI,Arial,sans-serif;
+  background:#f2f2f2;
+  font-size:11px;
+  color:#222;
+}
+#app{
+  width:100vw;
+  height:100vh;
+  padding:8px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  overflow:hidden;
+}
+h3{
+  font-size:13px;
+  margin:5px 0 4px 0;
+}
+.box{
+  background:#fff;
+  border:1px solid #ccc;
+  border-radius:6px;
+  padding:6px;
+}
+#topLayout{
+  display:grid;
+  grid-template-columns:minmax(280px,1fr) minmax(280px,1fr);
+  gap:8px;
+  align-items:start;
+  flex:0 0 auto;
+  min-height:0;
+}
+.column{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  min-width:0;
+}
+.summary{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  align-items:stretch;
+}
+.summary .card,
+.settingsCard{
+  text-align:center;
+  min-width:0;
+}
+.settingsCard{
+  grid-column:1 / -1;
+}
+.settingsControls{
+  width:100%;
+  display:flex;
+  flex-wrap:wrap;
+  gap:5px 10px;
+  align-items:center;
+  justify-content:center;
+  font-size:10px;
+}
+.settingsControls button{
+  font-size:10px;
+  padding:2px 6px;
+  flex:0 0 auto;
+}
+.ignoreControl,
+.intervalControl{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  white-space:nowrap;
+  flex:0 0 auto;
+}
+#intervalSeconds{
+  width:44px;
+  height:20px;
+  font-size:10px;
+  padding:1px 2px;
+}
+.light{
+  width:12px;
+  height:12px;
+  border-radius:50%;
+  background:gray;
+  display:inline-block;
+  vertical-align:middle;
+  margin-right:5px;
+}
+.row{
+  display:grid;
+  grid-template-columns:14px 1fr 122px;
+  gap:4px;
+  align-items:center;
+  padding:2px 0;
+  border-bottom:1px solid #eee;
+}
+.row:last-child{ border-bottom:0; }
+.name{ font-weight:600; }
+.meta{
+  font-size:10px;
+  color:#555;
+  text-align:right;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.note{
+  font-size:10px;
+  color:#555;
+  margin-top:3px;
+}
+.ignored-card{
+  opacity:.58;
+  filter:grayscale(1);
+}
+.ignored-card .light{
+  background:gray !important;
+}
+#activityBox{
+  flex:1 1 auto;
+  min-height:130px;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+#action{
+  font-family:Consolas,monospace;
+  font-size:11px;
+}
+#terminal{
+  flex:1 1 auto;
+  min-height:90px;
+  overflow:auto;
+  background:#111;
+  color:#ddd;
+  border-radius:5px;
+  padding:6px;
+  font-family:Consolas,"Courier New",monospace;
+  font-size:10px;
+  white-space:pre-wrap;
+}
+.small{ font-size:10px; color:#555; }
+@media (max-width:620px){
+  body{ overflow:auto; }
+  #app{
+    height:auto;
+    min-height:100vh;
+    overflow:visible;
+  }
+  #topLayout{
+    grid-template-columns:1fr;
+  }
+  #activityBox{
+    min-height:170px;
+  }
+}
+@media (max-width:430px){
+  .summary{
+    grid-template-columns:1fr 1fr;
+  }
+  .settingsCard{
+    grid-column:1 / -1;
+  }
+  .row{
+    grid-template-columns:14px 1fr 108px;
+  }
+}
+
+@media (max-width:360px){
+  .settingsControls{
+    gap:4px 7px;
+  }
+  #intervalSeconds{
+    width:40px;
+  }
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="topLayout">
+    <div class="column leftColumn">
+      <div class="box summary">
+        <div class="card">
+          <h3>Updates</h3>
+          <span id="summaryUpdates" class="light"></span><span id="summaryUpdatesText">Checking</span>
+        </div>
+        <div class="card">
+          <h3>Defender</h3>
+          <span id="summaryDefender" class="light"></span><span id="summaryDefenderText">Checking</span>
+        </div>
+        <div class="settingsCard">
+          <h3>Settings</h3>
+          <div class="settingsControls">
+            <button id="fixDefenderBtn" onclick="fixDefenderFromSettings()" title="Repair Defender services and policies">Fix Defender</button>
+            <label class="ignoreControl" title="Stop showing Defender as red/green"><input type="checkbox" id="ignoreDefender"> Ignore Defender</label>
+            <label class="intervalControl" title="Seconds between watchdog patrol checks while Watching is enabled">Check <input type="number" id="intervalSeconds" min="2" max="300" step="1"> sec</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="box">
+        <h3>Update Services</h3>
+        <div id="updateRows"></div>
+        <div class="note">Required services: green means stopped and disabled. WaaSMedicSvc is optional; red only if running.</div>
+      </div>
+    </div>
+
+    <div class="column rightColumn">
+      <div id="defenderServicesBox" class="box">
+        <h3>Defender Services</h3>
+        <div id="defenderRows"></div>
+        <div class="note">WinDefend should be running. WdNisSvc should be available. Sense is optional.</div>
+      </div>
+
+      <div id="defenderProtectionBox" class="box">
+        <h3>Defender Protection</h3>
+        <div id="mpRows"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="activityBox" class="box">
+    <h3>Activity</h3>
+    <div id="terminal"></div>
+  </div>
+
+</div>
+
+<script>
+const summaryUpdates = document.getElementById("summaryUpdates")
+const summaryDefender = document.getElementById("summaryDefender")
+const summaryUpdatesText = document.getElementById("summaryUpdatesText")
+const summaryDefenderText = document.getElementById("summaryDefenderText")
+const updateRows = document.getElementById("updateRows")
+const defenderRows = document.getElementById("defenderRows")
+const mpRows = document.getElementById("mpRows")
+const terminal = document.getElementById("terminal")
+const ignoreDefender = document.getElementById("ignoreDefender")
+const intervalSeconds = document.getElementById("intervalSeconds")
+const fixDefenderBtn = document.getElementById("fixDefenderBtn")
+const defenderServicesBox = document.getElementById("defenderServicesBox")
+const defenderProtectionBox = document.getElementById("defenderProtectionBox")
+
+function lightColor(value){
+  if(value === null || value === undefined) return "gray"
+  return value ? "green" : "red"
+}
+
+function setLight(el, value){
+  el.style.background = lightColor(value)
+}
+
+function row(name, status, meta, ignored=false){
+  const div = document.createElement("div")
+  div.className = "row"
+
+  const l = document.createElement("span")
+  l.className = "light"
+  l.style.background = ignored ? "gray" : lightColor(status)
+
+  const n = document.createElement("span")
+  n.className = "name"
+  n.textContent = name
+
+  const m = document.createElement("span")
+  m.className = "meta"
+  m.textContent = meta || ""
+
+  div.appendChild(l)
+  div.appendChild(n)
+  div.appendChild(m)
+  return div
+}
+
+function updateServiceOk(svc){
+  if(!svc || !svc.exists) return null
+  return svc.state !== "Running" && svc.start_type === "Disabled"
+}
+
+function optionalUpdateServiceOk(svc){
+  if(!svc || !svc.exists) return null
+  if(svc.state === "Running") return false
+  return null
+}
+
+function defenderServiceOk(svc, role){
+  if(!svc || !svc.exists){
+    return role === "optional" ? null : false
+  }
+
+  if(role === "core"){
+    return svc.state === "Running" && svc.start_type !== "Disabled"
+  }
+
+  if(role === "support"){
+    return svc.start_type !== "Disabled"
+  }
+
+  return svc.start_type !== "Disabled"
+}
+
+function boolMeta(value){
+  if(value === true) return "True"
+  if(value === false) return "False"
+  return "Unknown"
+}
+
+function renderStatus(status){
+  setLight(summaryUpdates, status.services)
+  setLight(summaryDefender, status.defender)
+  summaryUpdatesText.textContent = status.services ? "OK" : "Check"
+  summaryDefenderText.textContent = status.defender === null ? "Ignored" : (status.defender ? "OK" : "Check")
+
+  const details = status.details || {}
+  const ignored = details.ignore_defender === true
+
+  if(document.activeElement !== ignoreDefender){
+    ignoreDefender.checked = ignored
+  }
+
+  if(document.activeElement !== intervalSeconds){
+    intervalSeconds.value = details.guard_interval_seconds || 8
+  }
+
+  defenderServicesBox.classList.toggle("ignored-card", ignored)
+  defenderProtectionBox.classList.toggle("ignored-card", ignored)
+
+  const updates = details.updates || {}
+  const defender = details.defender || {}
+
+  updateRows.innerHTML = ""
+  const updateServices = updates.services || []
+  updateServices.forEach(function(svc){
+    updateRows.appendChild(row(svc.name, updateServiceOk(svc), svc.state + " / " + svc.start_type))
+  })
+
+  const optionalUpdates = updates.optional_services || []
+  optionalUpdates.forEach(function(svc){
+    updateRows.appendChild(row(svc.name + " optional", optionalUpdateServiceOk(svc), svc.state + " / " + svc.start_type))
+  })
+
+  updateRows.appendChild(row("NoAutoUpdate policy", updates.policy_disabled === true, updates.policy_disabled ? "Enabled" : "Missing"))
+  updateRows.appendChild(row("Update guard", updates.guard_enabled === true, updates.guard_enabled ? "Enabled" : "Off"))
+
+  defenderRows.innerHTML = ""
+  if(defender.core){
+    defenderRows.appendChild(row(defender.core.name, defenderServiceOk(defender.core, "core"), defender.core.state + " / " + defender.core.start_type, ignored))
+  }
+
+  const support = defender.support || []
+  support.forEach(function(svc){
+    defenderRows.appendChild(row(svc.name, defenderServiceOk(svc, "support"), svc.state + " / " + svc.start_type, ignored))
+  })
+
+  const optional = defender.optional || []
+  optional.forEach(function(svc){
+    defenderRows.appendChild(row(svc.name + " optional", defenderServiceOk(svc, "optional"), svc.state + " / " + svc.start_type, ignored))
+  })
+
+  mpRows.innerHTML = ""
+  const mp = defender.mp_status || {}
+  const data = mp.data || {}
+  mpRows.appendChild(row("Get-MpComputerStatus", mp.ok === true, mp.ok ? "OK" : "Check", ignored))
+  mpRows.appendChild(row("AntivirusEnabled", data.AntivirusEnabled === true, boolMeta(data.AntivirusEnabled), ignored))
+  mpRows.appendChild(row("RealTimeProtection", data.RealTimeProtectionEnabled === true, boolMeta(data.RealTimeProtectionEnabled), ignored))
+  mpRows.appendChild(row("AMServiceEnabled", data.AMServiceEnabled === true, boolMeta(data.AMServiceEnabled), ignored))
+  mpRows.appendChild(row("TamperProtected", data.IsTamperProtected === true, boolMeta(data.IsTamperProtected), ignored))
+}
+
+async function fixDefenderFromSettings(){
+  try{
+    fixDefenderBtn.disabled = true
+    fixDefenderBtn.textContent = "Fixing..."
+    const status = await pywebview.api.fix_defender()
+    renderStatus(status)
+  }catch(err){
+    terminal.textContent += "\n[error] Defender repair failed: " + err
+  }finally{
+    fixDefenderBtn.disabled = false
+    fixDefenderBtn.textContent = "Fix Defender"
+  }
+}
+
+ignoreDefender.onchange = async function(){
+  try{
+    const status = await pywebview.api.toggle_ignore(ignoreDefender.checked)
+    renderStatus(status)
+  }catch(err){
+    terminal.textContent += "\n[error] ignore defender update failed: " + err
+  }
+}
+
+intervalSeconds.onchange = async function(){
+  try{
+    const status = await pywebview.api.set_guard_interval(intervalSeconds.value)
+    renderStatus(status)
+  }catch(err){
+    terminal.textContent += "\n[error] interval update failed: " + err
+  }
+}
+
+async function refresh(){
+  try{
+    const status = await pywebview.api.get_status()
+    renderStatus(status)
+  }catch(err){
+    terminal.textContent += "\n[error] status refresh failed: " + err
+  }
+
+  try{
+    const log = await pywebview.api.get_activity_log()
+    terminal.textContent = (log.lines || []).join("\n")
+    terminal.scrollTop = terminal.scrollHeight
+  }catch(err){
+    terminal.textContent += "\n[error] log refresh failed: " + err
+  }
+}
+
+refresh()
+setInterval(refresh, 2000)
+</script>
+</body>
+</html>

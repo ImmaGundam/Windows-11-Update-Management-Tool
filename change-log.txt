@@ -1,0 +1,114 @@
+## Changelog
+
+### Version 1.1.0 [05-04-26]
+
+- Added active **Watching** mode:
+  - `Start` now applies update-control actions.
+  - Watchdog loop continues checking targeted services.
+  - If Windows re-enables update services, the app attempts to stop/disable them again.
+  - Check interval can be adjusted from the Settings window.
+
+- Changed main controls:
+  - `Run All` renamed to `Start`.
+  - `Fix Defender` removed from the main window.
+  - Added `Stop` to disable the watchdog loop without restoring update services.
+  - `Restore` disables Watching and restores update-related services/settings.
+
+- Added a setting page with console / diagnostics window:
+  - Shows update-service status lights.
+  - Shows Defender-service status lights.
+  - Shows Defender protection status from `Get-MpComputerStatus`.
+  - Includes an activity console for button actions and watchdog loop events.
+  - Added manual `Fix Defender` button inside Settings.
+  - Moved `Ignore Defender` into Settings.
+
+- Added targeted Windows Update service control:
+  - `wuauserv`
+  - `bits`
+  - `dosvc`
+  - `UsoSvc`
+  - `WaaSMedicSvc` as optional / best-effort
+
+- Added Windows Update policy handling:
+  - Sets `NoAutoUpdate` policy.
+  - Checks update policy status in diagnostics.
+  - Restore function removes/undoes watchdog-applied update restrictions.
+
+- Improved Defender handling:
+  - Checks core Defender services.
+  - Treats `Sense` as optional instead of required.
+  - Uses `Get-MpComputerStatus` for better Defender health detection.
+  - Keeps Defender repair available even when Defender monitoring is ignored.
+  - Replaced broad Defender policy deletion with safer targeted policy cleanup.
+
+- Improved service status logic:
+  - Checks both service state and startup type.
+  - Distinguishes between running, stopped, disabled, manual, missing, and optional services.
+  - Update services are considered controlled only when stopped and disabled.
+  - Optional services no longer fail the main update status unless actively running.
+
+- Updated UI layout:
+  - Main UI kept small and minimal.
+  - Settings button placed in bottom-left main UI.
+  - Settings page reorganized into responsive columns.
+  - Activity console show real-time updates.
+  - Status text changed to `Watching: enabled` / `Watching: disabled` depending on app state.
+
+- Updated About page:
+  - Added `Version 1.1.0`.
+  - Added WebGeeks IT copyright.
+  - Added GitHub repo icon/link.
+
+- Added application icon support:
+  - App icon added for title bar.
+  - App icon added for PyInstaller build.
+  - Tray icon continues to show live status colors.
+
+- Added PyInstaller build support:
+  - Added command-line build instructions.
+  - Added icon bundling.
+  - Added `version_info.txt` metadata support.
+  - Added hidden imports and collection flags for `pywebview`, `pystray`, and `Pillow`.
+
+- Added EXE metadata:
+  - Company: `WebGeeks IT`
+  - Developer: `James Deitz`
+  - Version: `1.1.0`
+  - Homepage: `https://www.webgeeks.org`
+  - Repository: `https://github.com/ImmaGundam/Windows-update-watchdog`
+
+- Updated README:
+  - Added project purpose.
+  - Added Windows 10 / Windows 11 compatibility notes.
+  - Added service target explanations.
+  - Added Defender logic explanation.
+  - Added function map.
+  - Added logic flowchart.
+
+
+### Version 1.0.0 [03-03-26]
+
+- Initial release of Windows Update Watchdog.
+
+- Added a compact Python/HTML desktop UI for monitoring Windows Update and
+  Microsoft Defender service status.
+
+- Added basic status lights for:
+  - Windows Update services
+  - Defender services
+
+- Added core update-control actions for stopping or disabling selected Windows
+  Update-related services.
+
+- Added Defender protection checks to help make sure Defender is not disabled
+  while update controls are being managed.
+
+- Added manual controls:
+  - Run update-control actions
+  - Repair Defender
+  - Ignore Defender checks
+
+- Added a small About page with project information
+
+- Included the original PowerShell administration script as the starting point
+  for the app’s Windows Update service-control logic.
